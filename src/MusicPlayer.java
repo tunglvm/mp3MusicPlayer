@@ -12,20 +12,41 @@ public class MusicPlayer {
     //use Jlayer library to create advancedPlayer -->> playing music
     private AdvancedPlayer advancedPlayer;
 
+    //pause: use boolean flag to indicate wether the player has been pause or not
+    private boolean isPause;
+
     //constructor
     public MusicPlayer(){
 
     }
     
+
     //functione to load song
     public void loadSong(Song song){
         currentSong = song;
 
         if(currentSong != null){
             playCurrentSong();
-
         }
     }
+
+    private void pauseSong(){
+        if(advancedPlayer != null){
+            //update pause flag
+            isPause = true;
+            // ==> stop the player
+            stopSong();
+        }
+    }
+
+    public void stopSong(){
+        if(advancedPlayer != null){
+            advancedPlayer.stop();
+            advancedPlayer.close();
+            advancedPlayer = null;
+        }
+    }
+
     //function to play song
     public void playCurrentSong(){
         try{

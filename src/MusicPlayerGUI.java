@@ -1,11 +1,15 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.imageio.ImageIO;
+import javax.print.attribute.standard.JobName;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -15,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MusicPlayerGUI extends JFrame{
 
@@ -22,7 +27,14 @@ public class MusicPlayerGUI extends JFrame{
     public static final Color FRAME_COLOR = Color.BLACK;
     public static final Color TEXT_COLOR = Color.WHITE;
 
-    private MusicPlayer musicPlayer;
+    private MusicPlayer musicPlayer; //creat music player
+
+    //use file explorer in app
+    private JFileChooser jFileChooser;
+
+    private JLabel songTitle, songArtist;
+
+    private JPanel playbackButton;
 
     public MusicPlayerGUI(){
         //calls JFrame constructor out GUI and set header to "musicPlayer"
@@ -45,6 +57,14 @@ public class MusicPlayerGUI extends JFrame{
         //Change th frame color
         getContentPane().setBackground(FRAME_COLOR);
 
+        musicPlayer = new MusicPlayer();
+
+        jFileChooser = new JFileChooser();
+        //set a default PATH for filr explorer
+        jFileChooser.setCurrentDirectory(new File("mp3MusicPlayer\\test song"));
+        //fiter file chooser to only show .mp3 file
+        jFileChooser.setFileFilter(new FileNameExtensionFilter("MP3", "mp3"));
+
         addGuiComponents();
 
     }
@@ -58,7 +78,7 @@ public class MusicPlayerGUI extends JFrame{
         add(songImage);
 
         //Song title
-        JLabel songTitle = new JLabel("Song Title");
+        songTitle = new JLabel("Song Title");
         songTitle.setBounds(0, 285, getWidth() - 10, 30);
         songTitle.setFont(new Font("Dialog", Font.BOLD, 24));
         songTitle.setForeground(TEXT_COLOR);
@@ -66,7 +86,7 @@ public class MusicPlayerGUI extends JFrame{
         add(songTitle);
 
         //song artist
-        JLabel songArtist = new JLabel("Artist");
+        songArtist = new JLabel("Artist");
         songArtist.setBounds(0, 315, getWidth() - 10, 30);        //set bound
         songArtist.setFont(new Font("Dialog", Font.PLAIN, 24));    //set font
         songArtist.setForeground(TEXT_COLOR);                                //set text color
@@ -102,6 +122,28 @@ public class MusicPlayerGUI extends JFrame{
 
         //add "load song" option in the menu
         JMenuItem loadSong = new JMenuItem("Load Song");  //creat"load song" option 
+        loadSong.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                jFileChooser.showOpenDialog(MusicPlayerGUI.this);
+                File selectedFile = jFileChooser.getSelectedFile();
+
+                if(selectedFile != null){
+
+                    //creat a song based on selected file
+                    Song song = new Song(selectedFile.getPath());
+
+                    //load song in musicplayer
+                    musicPlayer.loadSong(song);
+
+                    //update song title and artist
+                    updateSongTitleAndArtist(song);
+
+                    //toggle on pause button and turn on play button
+                    enablePauseButtonDisablePlayButton();
+                }
+            }
+        });
         songMenu.add(loadSong);                                //add "load song" option to "song" drop-down menu
         
         
@@ -123,7 +165,7 @@ public class MusicPlayerGUI extends JFrame{
 
     private void addPlaybackButtons(){
         //creat and add button
-        JPanel playbackButton = new JPanel();
+        playbackButton = new JPanel();
         playbackButton.setBounds(0, 435, getWidth() - 10, 80);
         playbackButton.setBackground(null);
 
@@ -154,6 +196,40 @@ public class MusicPlayerGUI extends JFrame{
 
         add(playbackButton);
     }   
+
+    private void updateSongTitleAndArtist(Song song){
+        songTitle.setText(song.getSongTitle());
+        songArtist.setText(song.getSongArtist());
+    }
+
+    private void enablePauseButtonDisablePlayButton(){
+        //retrieve reference to play button from playbackbutton panel
+        JButton playButton = (JButton) playbackButton.getComponent(1);
+        JButton pauseButton = (JButton) playbackButton.getComponent(2);
+
+        //turn off play button when music is playing
+        playButton.setVisible(false);    //set the visible of playButton to off
+        playButton.setEnabled(false);        //set the enable of playButton to off
+
+        //turn on pause button 
+        pauseButton.setVisible(true);    //set the visible of pauseButton to on
+        pauseButton.setEnabled(true);        //set the enable of pauseButton to on
+    }
+
+     private void enablePlayButtonDisablePauseButton(){
+        //retrieve reference to play button from playbackbutton panel
+        JButton playButton = (JButton) playbackButton.getComponent(1);
+        JButton pauseButton = (JButton) playbackButton.getComponent(2);
+
+        //turn off play button when music is playing
+        playButton.setVisible(true);    //set the visible of playButton to off
+        playButton.setEnabled(true);        //set the enable of playButton to off
+
+        //turn on pause button 
+        pauseButton.setVisible(false);    //set the visible of pauseButton to on
+        pauseButton.setEnabled(false);        //set the enable of pauseButton to on
+    }
+
 
     private ImageIcon loadImage(String imagePATH){
         try{
