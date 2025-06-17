@@ -3,8 +3,10 @@ import java.io.FileInputStream;
 import java.nio.Buffer;
 
 import javazoom.jl.player.advanced.AdvancedPlayer;
+import javazoom.jl.player.advanced.PlaybackEvent;
+import javazoom.jl.player.advanced.PlaybackListener;
 
-public class MusicPlayer {
+public class MusicPlayer extends PlaybackListener {
 
     private Song currentSong; //creat class song to store songs
     //call the constructor in class "Song"
@@ -30,7 +32,7 @@ public class MusicPlayer {
         }
     }
 
-    private void pauseSong(){
+    void pauseSong(){
         if(advancedPlayer != null){
             //update pause flag
             isPause = true;
@@ -56,7 +58,7 @@ public class MusicPlayer {
 
             // creat a new advanced player
             advancedPlayer = new AdvancedPlayer(bufferedInputStream);
-
+            advancedPlayer.setPlayBackListener(this);
             //start playing music
             startMusicThread();
         }
@@ -79,4 +81,22 @@ public class MusicPlayer {
             }
         }).start();
     }
+
+    @Override //this method gets called when the song is finished or if player gets closer
+    public void playbackStarted(PlaybackEvent evt) {
+        System.out.println("Play Back Started");
+
+    }
+
+    @Override //this method gets called in the beginning of the song
+    public void playbackFinished(PlaybackEvent evt) {
+        System.out.println("Play Back Finished");
+
+        System.out.println("Stopped @" + evt.getFrame()); //countting miliseconds ==>>  know where user pause the song 
+    }
+
+
+    
+
+    
 }

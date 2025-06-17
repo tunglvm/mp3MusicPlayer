@@ -125,10 +125,12 @@ public class MusicPlayerGUI extends JFrame{
         loadSong.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e){
-                jFileChooser.showOpenDialog(MusicPlayerGUI.this);
-                File selectedFile = jFileChooser.getSelectedFile();
+                //on int is return to let progeam know what user did ==> prevent load song when user "cancel"
+                int result = jFileChooser.showOpenDialog(MusicPlayerGUI.this); 
+                File selectedFile = jFileChooser.getSelectedFile();  //creat file which is choosen
 
-                if(selectedFile != null){
+                //use result to check if user click the "open" button
+                if(result == JFileChooser.APPROVE_OPTION && selectedFile != null){
 
                     //creat a song based on selected file
                     Song song = new Song(selectedFile.getPath());
@@ -171,22 +173,42 @@ public class MusicPlayerGUI extends JFrame{
 
         //previous button
         JButton prevButton = new JButton(loadImage("D:\\musucPlayer\\mp3MusicPlayer\\src\\assets\\previous.png"));
-        prevButton.setBorderPainted(false);
-        prevButton.setBackground(null);
-        playbackButton.add(prevButton);
+        prevButton.setBorderPainted(false);  //set none to border
+        prevButton.setBackground(null);     //set none background
+        playbackButton.add(prevButton);        //show the button
 
         //play button
         JButton playButton = new JButton(loadImage("D:\\musucPlayer\\mp3MusicPlayer\\src\\assets\\play.png"));
         playButton.setBorderPainted(false);
         playButton.setBackground(null);
-        playbackButton.add(playButton);
+        playButton.addActionListener(new ActionListener() {  //CREAT RESUME FUNCTION
+            @Override 
+            public void actionPerformed(ActionEvent e){
+                //toggle off the "Play Button" and toogle of the "Pause Button"
+                enablePauseButtonDisablePlayButton();
+
+                //play or resume song
+                musicPlayer.playCurrentSong();
+            }
+        });
+        playbackButton.add(playButton);       //show the button
 
         //pause butoon
         JButton pauseButton = new JButton(loadImage("D:\\musucPlayer\\mp3MusicPlayer\\src\\assets\\pause.png"));
-        pauseButton.setBorderPainted(false);
+        pauseButton.setBorderPainted(false); 
         pauseButton.setBackground(null);
         pauseButton.setVisible(false);
-        playbackButton.add(pauseButton);
+        pauseButton.addActionListener(new ActionListener() {  //CREAT PAUSE FUNCTION
+            @Override
+            public void actionPerformed(ActionEvent e){
+                //toggle off the "Pause Button" and toogle of the "Play Button"
+                enablePlayButtonDisablePauseButton();
+
+                //pause the song
+                musicPlayer.pauseSong();
+            }
+        });
+        playbackButton.add(pauseButton);             //show the button
 
         //next button
         JButton nextButton = new JButton(loadImage("D:\\musucPlayer\\mp3MusicPlayer\\src\\assets\\next.png"));
