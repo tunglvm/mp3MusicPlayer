@@ -30,9 +30,31 @@ public class Song {
                 songTitle = tag.getFirst(FieldKey.TITLE);
                 songArtist = tag.getFirst(FieldKey.ARTIST);
             }
+            else{ //could not read meta data of song 
+                songTitle = "N/A";
+                songArtist = "N/A";
+            }
         }
         catch(Exception e){
             e.printStackTrace();
         }
     }
+
+    //getters
+    public String getSongTitle() {
+        return songTitle;
+    }
+
+    public String getSongArtist() {
+        return songArtist;
+    }
+
+    public String getSpngLenght() {
+        return spngLenght;
+    }
+
+    public String getFilePATH() {
+        return filePATH;
+    }
+    
 }

@@ -22,7 +22,7 @@ public class MusicPlayerGUI extends JFrame{
     public static final Color FRAME_COLOR = Color.BLACK;
     public static final Color TEXT_COLOR = Color.WHITE;
 
-
+    private MusicPlayer musicPlayer;
 
     public MusicPlayerGUI(){
         //calls JFrame constructor out GUI and set header to "musicPlayer"
