@@ -47,7 +47,7 @@ public class MusicPlayerGUI extends JFrame{
         super("Music Player");
 
         //set width and height
-        setSize( 400, 600);
+        setSize( 400, 600);  //creat a windown with width and height
 
         //end process when app close
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -74,7 +74,7 @@ public class MusicPlayerGUI extends JFrame{
         addGuiComponents();
 
     }
-    private void addGuiComponents(){
+    private void addGuiComponents(){ //tạo giao diện
         //add toolbar
         addToolBar();
 
@@ -85,10 +85,10 @@ public class MusicPlayerGUI extends JFrame{
 
         //Song title
         songTitle = new JLabel("Song Title");
-        songTitle.setBounds(0, 285, getWidth() - 10, 30);
-        songTitle.setFont(new Font("Dialog", Font.BOLD, 24));
-        songTitle.setForeground(TEXT_COLOR);
-        songTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        songTitle.setBounds(0, 285, getWidth() - 10, 30);        //set bound ==>> where the coponent locate at
+        songTitle.setFont(new Font("Dialog", Font.BOLD, 24));     //set font
+        songTitle.setForeground(TEXT_COLOR);                                //set text color
+        songTitle.setHorizontalAlignment(SwingConstants.CENTER);            //set algnment
         add(songTitle);
 
         //song artist
@@ -101,8 +101,8 @@ public class MusicPlayerGUI extends JFrame{
 
         //Playback slider
         playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
-        playbackSlider.setBounds(getWidth()/2 - 300/2, 365, 300, 40 );
-        playbackSlider.setBackground(null);
+        playbackSlider.setBounds(getWidth()/2 - 300/2, 365, 300, 40 );  //set place of slider
+        playbackSlider.setBackground(null);                                          //none background
         add(playbackSlider);
 
         //playback button
@@ -158,8 +158,6 @@ public class MusicPlayerGUI extends JFrame{
             }
         });
         songMenu.add(loadSong);                                //add "load song" option to "song" drop-down menu
-        
-        
 
         //add song menu => loading option
         //add drop-down menu name "playlist"
@@ -230,6 +228,12 @@ public class MusicPlayerGUI extends JFrame{
         add(playbackButton);
     }   
 
+    //function to make slider usable
+    //update slider from "music player" class
+    public void setPlaybackSliderValue(int frame){
+        playbackSlider.setValue(frame);
+    }
+
     private void updateSongTitleAndArtist(Song song){
         songTitle.setText(song.getSongTitle());
         songArtist.setText(song.getSongArtist());
@@ -244,18 +248,18 @@ public class MusicPlayerGUI extends JFrame{
         Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
 
         //set the beginning of song is 00:00
-        JLabel labelBeginning = new JLabel("00:00");
+        JLabel labelBeginning = new JLabel("00:00"); //creat label
         labelBeginning.setFont(new Font("Dialog", Font.BOLD, 18));
         labelBeginning.setForeground(TEXT_COLOR);
 
         //set the end of song
-        JLabel labelEnd = new JLabel(song.getSpngLenght());
+        JLabel labelEnd = new JLabel(song.getSpngLenght()); //creat label
         labelEnd.setFont(new Font("Dialog", Font.BOLD, 18));
-        labelEnd.setForeground(TEXT_COLOR);
+        labelEnd.setForeground(TEXT_COLOR);  
 
         //place coponents in table
-        labelTable.put(0, labelBeginning);
-        labelTable.put(song.getMp3File().getFrameCount(), labelEnd);
+        labelTable.put(0, labelBeginning);                         //time song been playing
+        labelTable.put(song.getMp3File().getFrameCount(), labelEnd);   //total length of the song in formatted string
 
         playbackSlider.setLabelTable(labelTable);
         playbackSlider.setPaintLabels(true);
@@ -291,7 +295,7 @@ public class MusicPlayerGUI extends JFrame{
     }
 
 
-    private ImageIcon loadImage(String imagePATH){
+    private ImageIcon loadImage(String imagePATH){  //function used to load image for GUI
         try{
 
             //read the image file from the PATH
