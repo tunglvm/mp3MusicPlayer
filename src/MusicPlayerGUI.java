@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 import javax.print.attribute.standard.JobName;
@@ -32,9 +33,14 @@ public class MusicPlayerGUI extends JFrame{
     //use file explorer in app
     private JFileChooser jFileChooser;
 
+    //creat panel to display title and artist
     private JLabel songTitle, songArtist;
 
+    //creat button
     private JPanel playbackButton;
+
+    //creat slider
+    private JSlider playbackSlider;
 
     public MusicPlayerGUI(){
         //calls JFrame constructor out GUI and set header to "musicPlayer"
@@ -94,7 +100,7 @@ public class MusicPlayerGUI extends JFrame{
         add(songArtist);
 
         //Playback slider
-        JSlider playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         playbackSlider.setBounds(getWidth()/2 - 300/2, 365, 300, 40 );
         playbackSlider.setBackground(null);
         add(playbackSlider);
@@ -141,8 +147,13 @@ public class MusicPlayerGUI extends JFrame{
                     //update song title and artist
                     updateSongTitleAndArtist(song);
 
+                    //update playback slider
+                    updatePlaybackSlider(song);
+
                     //toggle on pause button and turn on play button
                     enablePauseButtonDisablePlayButton();
+
+
                 }
             }
         });
@@ -222,6 +233,33 @@ public class MusicPlayerGUI extends JFrame{
     private void updateSongTitleAndArtist(Song song){
         songTitle.setText(song.getSongTitle());
         songArtist.setText(song.getSongArtist());
+    }
+
+    private void updatePlaybackSlider(Song song){
+        //update MAX count for slider
+        //set the MAX value of slider == song's length
+        playbackSlider.setMaximum(song.getMp3File().getFrameCount()); 
+
+        //creat song length lable by using "Hashtable" and "JLabel"
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+
+        //set the beginning of song is 00:00
+        JLabel labelBeginning = new JLabel("00:00");
+        labelBeginning.setFont(new Font("Dialog", Font.BOLD, 18));
+        labelBeginning.setForeground(TEXT_COLOR);
+
+        //set the end of song
+        JLabel labelEnd = new JLabel(song.getSpngLenght());
+        labelEnd.setFont(new Font("Dialog", Font.BOLD, 18));
+        labelEnd.setForeground(TEXT_COLOR);
+
+        //place coponents in table
+        labelTable.put(0, labelBeginning);
+        labelTable.put(song.getMp3File().getFrameCount(), labelEnd);
+
+        playbackSlider.setLabelTable(labelTable);
+        playbackSlider.setPaintLabels(true);
+
     }
 
     private void enablePauseButtonDisablePlayButton(){

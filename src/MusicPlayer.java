@@ -17,6 +17,9 @@ public class MusicPlayer extends PlaybackListener {
     //pause: use boolean flag to indicate wether the player has been pause or not
     private boolean isPause;
 
+    //store the last frame when the playback is finished
+    private int currentFrame;
+
     //constructor
     public MusicPlayer(){
 
@@ -51,6 +54,9 @@ public class MusicPlayer extends PlaybackListener {
 
     //function to play song
     public void playCurrentSong(){
+        if(currentSong == null){
+            return; // prevent user press "play" before load songs
+        }
         try{
             //read mp3 audio data
             FileInputStream fileInputStream = new FileInputStream(currentSong.getFilePATH());    //get filePATH from currentSong
@@ -72,8 +78,14 @@ public class MusicPlayer extends PlaybackListener {
             @Override
             public void run(){
                 try{
-                    //playing music
-                    advancedPlayer.play();
+                    if(isPause){
+                        //resume music from the last frame when music is pause
+                        advancedPlayer.play(currentFrame, Integer.MAX_VALUE);
+                    }                                          //MAX to capture all lengths of songs
+                    else{
+                        //playing music from start
+                        advancedPlayer.play();
+                    }
                 }
                 catch(Exception e){
                     e.printStackTrace();
@@ -92,11 +104,15 @@ public class MusicPlayer extends PlaybackListener {
     public void playbackFinished(PlaybackEvent evt) {
         System.out.println("Play Back Finished");
 
-        System.out.println("Stopped @" + evt.getFrame()); //countting miliseconds ==>>  know where user pause the song 
+        
+         
+        if(isPause){
+            // ||evt.getFrame() x (total frame / ms(song length)) = current frame||
+            currentFrame += (int) ((double) evt.getFrame() * currentSong.getFramRatePerMiliseconds()); 
+            //"The play (int start, int end)"
+            //JLayer ADVANDCEDPLAYER expect "frame", not "miliseconds" value ==>> convert milisecond to frame
+
+            
+        }
     }
-
-
-    
-
-    
 }
