@@ -41,6 +41,7 @@ public class Song {
                 songArtist = tag.getFirst(FieldKey.ARTIST);
             }
             else{ //could not read meta data of song 
+                 //==>> print "N/A" for both title and artist
                 songTitle = "N/A";
                 songArtist = "N/A";
             }

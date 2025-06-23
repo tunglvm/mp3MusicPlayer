@@ -2,6 +2,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Hashtable;
@@ -47,7 +49,7 @@ public class MusicPlayerGUI extends JFrame{
         super("Music Player");
 
         //set width and height
-        setSize( 400, 600);  //creat a windown with width and height
+        setSize( 400, 600);  //creat a windown with width and height (400px x 6600p)
 
         //end process when app close
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -63,7 +65,7 @@ public class MusicPlayerGUI extends JFrame{
         //Change th frame color
         getContentPane().setBackground(FRAME_COLOR);
 
-        musicPlayer = new MusicPlayer();
+        musicPlayer = new MusicPlayer(this); //reference to musicPlayer which created in "musicPlayer" class
 
         jFileChooser = new JFileChooser();
         //set a default PATH for filr explorer
@@ -80,8 +82,8 @@ public class MusicPlayerGUI extends JFrame{
 
         //load record image
         JLabel songImage = new JLabel(loadImage("D:\\musucPlayer\\mp3MusicPlayer\\src\\assets\\record.png"));
-        songImage.setBounds(0, 50, getWidth() - 20, 225 );
-        add(songImage);
+        songImage.setBounds(0, 50, getWidth() - 20, 225 );  //set position of song's image and width & height
+        add(songImage);                                                //add song's image to GUI
 
         //Song title
         songTitle = new JLabel("Song Title");
@@ -89,7 +91,7 @@ public class MusicPlayerGUI extends JFrame{
         songTitle.setFont(new Font("Dialog", Font.BOLD, 24));     //set font
         songTitle.setForeground(TEXT_COLOR);                                //set text color
         songTitle.setHorizontalAlignment(SwingConstants.CENTER);            //set algnment
-        add(songTitle);
+        add(songTitle);                                                     //add song's title to GUI
 
         //song artist
         songArtist = new JLabel("Artist");
@@ -102,7 +104,37 @@ public class MusicPlayerGUI extends JFrame{
         //Playback slider
         playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         playbackSlider.setBounds(getWidth()/2 - 300/2, 365, 300, 40 );  //set place of slider
-        playbackSlider.setBackground(null);                                          //none background
+        playbackSlider.setBackground(null);    //none background
+
+        //play song at any point using slider
+        playbackSlider.addMouseListener(new MouseAdapter() {
+            //2 actions ==>> press and release
+            @Override
+            public void mousePressed(MouseEvent e){
+                //when user holding the slider ==>> pause the song
+                musicPlayer.pauseSong();
+            }
+            @Override
+            public void mouseReleased(MouseEvent e){
+                //when user drop the slider ==>> play the song
+                JSlider source = (JSlider) e.getSource();
+
+                //get the frame value from where the user wants to palyback to
+                int frame = source.getValue();
+
+                //update the current frame in music player to this frame
+                musicPlayer.setCurrentFrame(frame);
+
+                //update current time in miliseconds                 //2.08 is explained in musicPlayer class
+                musicPlayer.setCurrentTimeInMiliseconds((int) (frame / (2.08 * musicPlayer.getCurrentSong().getFramRatePerMiliseconds())));
+
+                //resume the song
+                musicPlayer.playCurrentSong();
+
+                //toggle on pause button and toogle off play button
+                enablePauseButtonDisablePlayButton();
+            }
+        });                                      
         add(playbackSlider);
 
         //playback button
@@ -128,10 +160,10 @@ public class MusicPlayerGUI extends JFrame{
 
         //add "load song" option in the menu
         JMenuItem loadSong = new JMenuItem("Load Song");  //creat"load song" option 
-        loadSong.addActionListener(new ActionListener() {
+        loadSong.addActionListener(new ActionListener() {  //process when user click
             @Override
-            public void actionPerformed(ActionEvent e){
-                //on int is return to let progeam know what user did ==> prevent load song when user "cancel"
+            public void actionPerformed(ActionEvent e){  //method actionPerformed will be called when user choose
+                //on int is return to let program know what user did ==> prevent load song when user "cancel"
                 int result = jFileChooser.showOpenDialog(MusicPlayerGUI.this); 
                 File selectedFile = jFileChooser.getSelectedFile();  //creat file which is choosen
 
@@ -152,8 +184,6 @@ public class MusicPlayerGUI extends JFrame{
 
                     //toggle on pause button and turn on play button
                     enablePauseButtonDisablePlayButton();
-
-
                 }
             }
         });
@@ -165,7 +195,14 @@ public class MusicPlayerGUI extends JFrame{
         menuBar.add(playlistMenu);                             //add the "playlist" button to "menu bar"
 
         //add items to playlist menu
-        JMenuItem creatPlaylist = new JMenuItem("Creat Playlist");  //creat "creat playlist" option 
+        JMenuItem creatPlaylist = new JMenuItem("Create Playlist");  //creat "creat playlist" option 
+        creatPlaylist.addActionListener(new ActionListener() {           //process when user click
+            @Override
+            public void actionPerformed(ActionEvent e){                  //method actionPerformed will be called when user choose
+                //load music dialog
+                new MusicPlaylistDialog(MusicPlayerGUI.this).setVisible(true);
+            }
+        });
         playlistMenu.add(creatPlaylist);                                 //add "creat playlist" option to "play list" drop-down menu
         
         JMenuItem loadPlaylist = new JMenuItem("Load Playlist");    //creat "load playlist" option 
@@ -177,7 +214,7 @@ public class MusicPlayerGUI extends JFrame{
     private void addPlaybackButtons(){
         //creat and add button
         playbackButton = new JPanel();
-        playbackButton.setBounds(0, 435, getWidth() - 10, 80);
+        playbackButton.setBounds(0, 435, getWidth() - 10, 80);  //set properties of button
         playbackButton.setBackground(null);
 
         //previous button
@@ -191,7 +228,7 @@ public class MusicPlayerGUI extends JFrame{
         playButton.setBorderPainted(false);
         playButton.setBackground(null);
         playButton.addActionListener(new ActionListener() {  //CREAT RESUME FUNCTION
-            @Override 
+            @Override //switch to "pause" when music is playing
             public void actionPerformed(ActionEvent e){
                 //toggle off the "Play Button" and toogle of the "Pause Button"
                 enablePauseButtonDisablePlayButton();
@@ -207,8 +244,9 @@ public class MusicPlayerGUI extends JFrame{
         pauseButton.setBorderPainted(false); 
         pauseButton.setBackground(null);
         pauseButton.setVisible(false);
-        pauseButton.addActionListener(new ActionListener() {  //CREAT PAUSE FUNCTION
-            @Override
+        //CREAT PAUSE FUNCTION
+        pauseButton.addActionListener(new ActionListener() {  
+            @Override  //switch to "play" button when music is pausing
             public void actionPerformed(ActionEvent e){
                 //toggle off the "Pause Button" and toogle of the "Play Button"
                 enablePlayButtonDisablePauseButton();
@@ -220,9 +258,9 @@ public class MusicPlayerGUI extends JFrame{
         playbackButton.add(pauseButton);             //show the button
 
         //next button
-        JButton nextButton = new JButton(loadImage("D:\\musucPlayer\\mp3MusicPlayer\\src\\assets\\next.png"));
-        nextButton.setBorderPainted(false);
-        nextButton.setBackground(null);
+        JButton nextButton = new JButton(loadImage("src\\assets\\next.png"));
+        nextButton.setBorderPainted(false); //set border color
+        nextButton.setBackground(null);    //set the background
         playbackButton.add(nextButton);
 
         add(playbackButton);
@@ -231,12 +269,13 @@ public class MusicPlayerGUI extends JFrame{
     //function to make slider usable
     //update slider from "music player" class
     public void setPlaybackSliderValue(int frame){
-        playbackSlider.setValue(frame);
+        playbackSlider.setValue(frame); //set value of slider == frame
     }
 
     private void updateSongTitleAndArtist(Song song){
-        songTitle.setText(song.getSongTitle());
-        songArtist.setText(song.getSongArtist());
+        //display the title and artist of the song 
+        songTitle.setText(song.getSongTitle());      //call the getTitle func in "song" class
+        songArtist.setText(song.getSongArtist());    //call the getAritsit func in "song" class
     }
 
     private void updatePlaybackSlider(Song song){
@@ -249,16 +288,16 @@ public class MusicPlayerGUI extends JFrame{
 
         //set the beginning of song is 00:00
         JLabel labelBeginning = new JLabel("00:00"); //creat label
-        labelBeginning.setFont(new Font("Dialog", Font.BOLD, 18));
-        labelBeginning.setForeground(TEXT_COLOR);
+        labelBeginning.setFont(new Font("Dialog", Font.BOLD, 18));  //set the properties
+        labelBeginning.setForeground(TEXT_COLOR);                               //set the properties
 
         //set the end of song
         JLabel labelEnd = new JLabel(song.getSpngLenght()); //creat label
-        labelEnd.setFont(new Font("Dialog", Font.BOLD, 18));
-        labelEnd.setForeground(TEXT_COLOR);  
+        labelEnd.setFont(new Font("Dialog", Font.BOLD, 18));         //set the properties
+        labelEnd.setForeground(TEXT_COLOR);                                     //set the properties
 
         //place coponents in table
-        labelTable.put(0, labelBeginning);                         //time song been playing
+        labelTable.put(0, labelBeginning);                             //time song been playing
         labelTable.put(song.getMp3File().getFrameCount(), labelEnd);   //total length of the song in formatted string
 
         playbackSlider.setLabelTable(labelTable);
@@ -286,12 +325,12 @@ public class MusicPlayerGUI extends JFrame{
         JButton pauseButton = (JButton) playbackButton.getComponent(2);
 
         //turn off play button when music is playing
-        playButton.setVisible(true);    //set the visible of playButton to off
-        playButton.setEnabled(true);        //set the enable of playButton to off
+        playButton.setVisible(true);    //set the visible of playButton to on
+        playButton.setEnabled(true);        //set the enable of playButton to on
 
         //turn on pause button 
-        pauseButton.setVisible(false);    //set the visible of pauseButton to on
-        pauseButton.setEnabled(false);        //set the enable of pauseButton to on
+        pauseButton.setVisible(false);    //set the visible of pauseButton to off
+        pauseButton.setEnabled(false);        //set the enable of pauseButton to off
     }
 
 
@@ -304,7 +343,7 @@ public class MusicPlayerGUI extends JFrame{
             //return image  icon
             return new ImageIcon(image);
         }
-        catch(Exception e){
+        catch(Exception e){    //error
             e.printStackTrace();
         }
 
