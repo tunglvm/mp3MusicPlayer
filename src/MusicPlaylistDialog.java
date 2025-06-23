@@ -130,17 +130,19 @@ public class MusicPlaylistDialog extends JDialog { //inherit form JDialog
 
                         //write all song path into this file
                         FileWriter fileWriter = new FileWriter(selectFile);
-                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter); //huffer = bộ đệm
+                        //thay vì lưu vào ổ cứng thì buffer sẽ ghi vào RAM
 
                         //interate through song list and write each into th file
                         //each song will be written in its own row
                         for(String songPATH : songPATHs){
                             bufferedWriter.write(songPATH + "\n");
                         }
-                        bufferedWriter.close();
+                        bufferedWriter.close(); //close the buffer
 
                         //display success dialog
                         JOptionPane.showMessageDialog(MusicPlaylistDialog.this, "Successfully created playlist");
+                        //create a pop-up windown with text
 
                         //close the dialog
                         MusicPlaylistDialog.this.dispose();
