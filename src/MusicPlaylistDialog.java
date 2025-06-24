@@ -95,6 +95,8 @@ public class MusicPlaylistDialog extends JDialog { //inherit form JDialog
         });
         add(addSongButton);
 
+
+        
         /*
          *            SAVE SONG BUTTON
          */
