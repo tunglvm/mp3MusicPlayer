@@ -1,6 +1,11 @@
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.lang.reflect.Array;
 import java.nio.Buffer;
+import java.util.ArrayList;
 
 import javazoom.jl.player.advanced.AdvancedPlayer;
 import javazoom.jl.player.advanced.PlaybackEvent;
@@ -22,11 +27,20 @@ public class MusicPlayer extends PlaybackListener {
         return currentSong;
     }
 
+    //list of PATH to song in playlist
+    private ArrayList<Song> playList;
+
+    //to keep track the index in the playlist
+    private int currentPlaylistIndex;
+
     //use Jlayer library to create advancedPlayer -->> playing music
     private AdvancedPlayer advancedPlayer;
 
     //pause: use boolean flag to indicate wether the player has been pause or not
     private boolean isPause;
+
+    //boolean flag to tell when has finished
+    private boolean songFinished;
 
     //store the last frame when the playback is finished
     private int currentFrame;
@@ -56,6 +70,52 @@ public class MusicPlayer extends PlaybackListener {
         }
     }
 
+    public void loadPlaylist(File playlistFile){
+        playList = new ArrayList<>();
+
+        //store the PATHs from the txt file into the playlist
+        try {
+            FileReader fileReader = new FileReader(playlistFile);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            //reach each line in the txt file and store into songPath variable
+            String songPath;
+            while ((songPath = bufferedReader.readLine()) != null) {
+                //create song object based on song paths
+                Song song = new Song(songPath);
+
+                //add to the arraylist playlist
+                playList.add(song);
+            }
+        }
+        catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+
+        if(playList.size() > 0){
+            //reset playback slider
+            musicPlayerGUI.setPlaybackSliderValue(0);
+            currentTimeInMiliseconds = 0;
+
+            //update current song to the first song in playlist
+            currentSong = playList.get(0);
+
+            //start from the beginning
+            currentFrame = 0;
+
+            //update GUI
+            musicPlayerGUI.enablePauseButtonDisablePlayButton();
+            musicPlayerGUI.updateSongTitleAndArtist(currentSong);
+            musicPlayerGUI.updatePlaybackSlider(currentSong);
+
+
+            //start song
+            playCurrentSong();
+
+        }
+    }
+
     void pauseSong(){
         if(advancedPlayer != null){
             //update pause flag
@@ -71,6 +131,78 @@ public class MusicPlayer extends PlaybackListener {
             advancedPlayer.close();
             advancedPlayer = null;
         }
+    }
+
+    public void nextSong(){
+        //if there no song in the playlist
+        if(playList == null){
+            return;
+        }
+
+        //check to see if there is anysong next
+        if(currentPlaylistIndex + 1 >playList.size() - 1){
+            return;
+        }
+
+        //bug: user press pause when song is finished
+        if(!songFinished){
+            stopSong();
+        }
+
+        //increase current playlist index
+        currentPlaylistIndex ++;
+
+        //update current song
+        currentSong = playList.get(currentPlaylistIndex);
+
+        //reset frame
+        currentFrame = 0;
+
+        //reset time in milliseconds
+        currentTimeInMiliseconds = 0;
+
+        musicPlayerGUI.enablePauseButtonDisablePlayButton();
+        musicPlayerGUI.updateSongTitleAndArtist(currentSong);
+        musicPlayerGUI.updatePlaybackSlider(currentSong);
+
+        //play th song
+        playCurrentSong();
+    }
+
+    public void prevSong(){
+        //if there no song in the playlist
+        if(playList == null){
+            return;
+        }
+
+        //check to see if there is anysong to go back
+        if(currentPlaylistIndex - 1 < 0){
+            return;
+        }
+
+        //bug: user press pause when song is finished
+        if(!songFinished){
+            stopSong();
+        }
+
+        //decrease current playlist index
+        currentPlaylistIndex --;
+
+        //update current song
+        currentSong = playList.get(currentPlaylistIndex);
+
+        //reset frame
+        currentFrame = 0;
+
+        //reset time in milliseconds
+        currentTimeInMiliseconds = 0;
+
+        musicPlayerGUI.enablePauseButtonDisablePlayButton();
+        musicPlayerGUI.updateSongTitleAndArtist(currentSong);
+        musicPlayerGUI.updatePlaybackSlider(currentSong);
+
+        //play th song
+        playCurrentSong();
     }
 
     //function to play song
@@ -183,6 +315,7 @@ public class MusicPlayer extends PlaybackListener {
     @Override //this method gets called when the song is finished or if player gets closer
     public void playbackStarted(PlaybackEvent evt) {
         System.out.println("Play Back Started");
+        songFinished = false; //boolean flag to tell song is finished
 
     }
 
@@ -195,6 +328,26 @@ public class MusicPlayer extends PlaybackListener {
             currentFrame += (int) ((double) evt.getFrame() * currentSong.getFramRatePerMiliseconds()); 
             //"The play (int start, int end)"
             //JLayer ADVANDCEDPLAYER expect "frame", not "miliseconds" value ==>> convert milisecond to frame
+        }
+        else{
+            //when song ends
+            songFinished = true;  //boolean flag to tell song is finished
+
+            if(playList == null){
+                //update GUI
+                musicPlayerGUI.enablePlayButtonDisablePauseButton();
+            }
+            else{
+                //last song in the playlist
+                if(currentPlaylistIndex == playList.size() - 1){
+                    //update GUI
+                    musicPlayerGUI.enablePlayButtonDisablePauseButton();
+                }
+                else{
+                    //go to next song in the playlist
+                    nextSong();
+                }
+            }
         }
     }
 }

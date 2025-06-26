@@ -44,7 +44,6 @@ public class MusicPlaylistDialog extends JDialog { //inherit form JDialog
         JPanel songContainer = new JPanel(); //create a Panel 
         //The components in the panel will be arranged vertically (from top to bottom)
         songContainer.setLayout(new BoxLayout(songContainer, BoxLayout.Y_AXIS));
-        
         songContainer.setBounds((int) (getWidth() * 0.025), 10, (int) (getWidth() * 0.90), (int) (getHeight() * 0.75));
         // x: 2.5% of dialog width from left margin
         // y: 10 pixels from top margin
@@ -74,7 +73,7 @@ public class MusicPlaylistDialog extends JDialog { //inherit form JDialog
                 int result = jFileChooser.showOpenDialog(MusicPlaylistDialog.this);
 
                 File selectedFile = jFileChooser.getSelectedFile();
-                //Click "Open" / "Choose" (OK) → result == JFileChooser.APPROVE_OPTION
+                //Click "Open" (OK) → result == JFileChooser.APPROVE_OPTION
                 //If the user selects nothing (or an error occurs), then selectedFile will be null
                 if(result == jFileChooser.APPROVE_OPTION && selectedFile != null){
                     JLabel filePathLabel = new JLabel(selectedFile.getPath());
